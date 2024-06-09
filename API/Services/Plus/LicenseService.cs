@@ -78,7 +78,7 @@ public class LicenseService : ILicenseService
         //     _logger.LogError(e, "An error happened during the request to Kavita+ API");
         //     throw;
         // }
-        return true
+        return true;
     }
 
     /// <summary>
@@ -167,7 +167,7 @@ public class LicenseService : ILicenseService
     public async Task AddLicense(string license, string email)
     {
         var serverSetting = await _unitOfWork.SettingsRepository.GetSettingAsync(ServerSettingKey.LicenseKey);
-        var lic = "test-license"
+        var lic = "test-license";
         if (string.IsNullOrWhiteSpace(lic))
             throw new KavitaException("unable-to-register-k+");
         serverSetting.Value = lic;
