@@ -204,7 +204,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           push: true
-          tags: kizaing/kavita:nightly, kizaing/kavita:nightly-${{ steps.parse-version.outputs.VERSION }}, ghcr.io/kareadita/kavita:nightly, ghcr.io/kareadita/kavita:nightly-${{ steps.parse-version.outputs.VERSION }}
+          tags: bearts/kavita:nightly, bearts/kavita:nightly-${{ steps.parse-version.outputs.VERSION }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -427,7 +427,7 @@ jobs:
                 context: .
                 platforms: linux/amd64,linux/arm/v7,linux/arm64
                 push: true
-                tags: kizaing/kavita:canary, kizaing/kavita:canary-${{ steps.parse-version.outputs.VERSION }}, ghcr.io/kareadita/kavita:canary, ghcr.io/kareadita/kavita:canary-${{ steps.parse-version.outputs.VERSION }}
+                tags: bearts/kavita:canary, bearts/kavita:canary-${{ steps.parse-version.outputs.VERSION }}
 
           - name: Image digest
             run: echo ${{ steps.docker_build.outputs.digest }}
