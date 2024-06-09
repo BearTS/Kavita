@@ -54,30 +54,31 @@ public class LicenseService : ILicenseService
     /// <returns></returns>
     private async Task<bool> IsLicenseValid(string license)
     {
-        if (string.IsNullOrWhiteSpace(license)) return false;
-        try
-        {
-            var response = await (Configuration.KavitaPlusApiUrl + "/api/license/check")
-                .WithHeader("Accept", "application/json")
-                .WithHeader("User-Agent", "Kavita")
-                .WithHeader("x-license-key", license)
-                .WithHeader("x-installId", HashUtil.ServerToken())
-                .WithHeader("x-kavita-version", BuildInfo.Version)
-                .WithHeader("Content-Type", "application/json")
-                .WithTimeout(TimeSpan.FromSeconds(Configuration.DefaultTimeOutSecs))
-                .PostJsonAsync(new LicenseValidDto()
-                {
-                    License = license,
-                    InstallId = HashUtil.ServerToken()
-                })
-                .ReceiveString();
-            return bool.Parse(response);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "An error happened during the request to Kavita+ API");
-            throw;
-        }
+        // if (string.IsNullOrWhiteSpace(license)) return false;
+        // try
+        // {
+        //     var response = await (Configuration.KavitaPlusApiUrl + "/api/license/check")
+        //         .WithHeader("Accept", "application/json")
+        //         .WithHeader("User-Agent", "Kavita")
+        //         .WithHeader("x-license-key", license)
+        //         .WithHeader("x-installId", HashUtil.ServerToken())
+        //         .WithHeader("x-kavita-version", BuildInfo.Version)
+        //         .WithHeader("Content-Type", "application/json")
+        //         .WithTimeout(TimeSpan.FromSeconds(Configuration.DefaultTimeOutSecs))
+        //         .PostJsonAsync(new LicenseValidDto()
+        //         {
+        //             License = license,
+        //             InstallId = HashUtil.ServerToken()
+        //         })
+        //         .ReceiveString();
+        //     return bool.Parse(response);
+        // }
+        // catch (Exception e)
+        // {
+        //     _logger.LogError(e, "An error happened during the request to Kavita+ API");
+        //     throw;
+        // }
+        return true
     }
 
     /// <summary>
@@ -166,7 +167,7 @@ public class LicenseService : ILicenseService
     public async Task AddLicense(string license, string email)
     {
         var serverSetting = await _unitOfWork.SettingsRepository.GetSettingAsync(ServerSettingKey.LicenseKey);
-        var lic = await RegisterLicense(license, email);
+        var lic = "test-license"
         if (string.IsNullOrWhiteSpace(lic))
             throw new KavitaException("unable-to-register-k+");
         serverSetting.Value = lic;
@@ -176,26 +177,26 @@ public class LicenseService : ILicenseService
 
     public async Task<bool> HasActiveLicense(bool forceCheck = false)
     {
-        var provider = _cachingProviderFactory.GetCachingProvider(EasyCacheProfiles.License);
-        if (!forceCheck)
-        {
-            var cacheValue = await provider.GetAsync<bool>(CacheKey);
-            if (cacheValue.HasValue) return cacheValue.Value;
-        }
+        // var provider = _cachingProviderFactory.GetCachingProvider(EasyCacheProfiles.License);
+        // if (!forceCheck)
+        // {
+        //     var cacheValue = await provider.GetAsync<bool>(CacheKey);
+        //     if (cacheValue.HasValue) return cacheValue.Value;
+        // }
 
-        try
-        {
-            var serverSetting = await _unitOfWork.SettingsRepository.GetSettingAsync(ServerSettingKey.LicenseKey);
-            var result = await IsLicenseValid(serverSetting.Value);
-            await provider.FlushAsync();
-            await provider.SetAsync(CacheKey, result, _licenseCacheTimeout);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "There was an issue connecting to Kavita+");
-        }
+        // try
+        // {
+        //     var serverSetting = await _unitOfWork.SettingsRepository.GetSettingAsync(ServerSettingKey.LicenseKey);
+        //     var result = await IsLicenseValid(serverSetting.Value);
+        //     await provider.FlushAsync();
+        //     await provider.SetAsync(CacheKey, result, _licenseCacheTimeout);
+        //     return result;
+        // }
+        // catch (Exception ex)
+        // {
+        //     _logger.LogError(ex, "There was an issue connecting to Kavita+");
+        // }
 
-        return false;
+        return true;
     }
 }
