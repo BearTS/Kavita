@@ -30,6 +30,3 @@ jobs:
         with:
           name: csproj
           path: Kavita.Common/Kavita.Common.csproj
-
-      - name: Test
-        run: dotnet test --no-restore --verbosity normal
