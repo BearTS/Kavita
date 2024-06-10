@@ -213,13 +213,13 @@ public class LicenseService(
         //     await provider.SetAsync(CacheKey, result, _licenseCacheTimeout);
 
         //     return result;
-            return true
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "An error happened during the request to Kavita+ API");
-            return false;
-        }
+            return true;
+        // }
+        // catch (Exception e)
+        // {
+        //     logger.LogError(e, "An error happened during the request to Kavita+ API");
+        //     return false;
+        // }
     }
 
     public async Task RemoveLicense()
