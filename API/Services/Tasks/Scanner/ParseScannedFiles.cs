@@ -137,22 +137,24 @@ public class ParseScannedFiles
                 await _eventHub.SendMessageAsync(MessageFactory.NotificationProgress,
                     MessageFactory.FileScanProgressEvent(directory, library.Name, ProgressEventType.Updated));
 
+
                 if (HasSeriesFolderNotChangedSinceLastScan(seriesPaths, directory, forceCheck))
                 {
                     if (result.Exists(r => r.Folder == directory))
                     {
+                        _logger.LogDebug("[ProcessFiles] Skipping adding {Directory} as it's already added", directory);
                         continue;
                     }
                     result.Add(CreateScanResult(directory, folderPath, false, ArraySegment<string>.Empty));
                 }
-                else if (seriesPaths.TryGetValue(directory, out var series) && series.All(s => !string.IsNullOrEmpty(s.LowestFolderPath)))
+                else if (!forceCheck && seriesPaths.TryGetValue(directory, out var series) && series.Count > 1 && series.All(s => !string.IsNullOrEmpty(s.LowestFolderPath)))
                 {
                     // If there are multiple series inside this path, let's check each of them to see which was modified and only scan those
                     // This is very helpful for ComicVine libraries by Publisher
                     _logger.LogDebug("[ProcessFiles] {Directory} is dirty and has multiple series folders, checking if we can avoid a full scan", directory);
                     foreach (var seriesModified in series)
                     {
-                        var hasFolderChangedSinceLastScan = library.LastScanned.Truncate(TimeSpan.TicksPerSecond) <
+                        var hasFolderChangedSinceLastScan = seriesModified.LastScanned.Truncate(TimeSpan.TicksPerSecond) <
                                                             _directoryService
                                                                 .GetLastWriteTime(seriesModified.LowestFolderPath!)
                                                                 .Truncate(TimeSpan.TicksPerSecond);
@@ -162,12 +164,12 @@ public class ParseScannedFiles
 
                         if (!hasFolderChangedSinceLastScan)
                         {
-                            _logger.LogDebug("[ProcessFiles] {Directory} subfolder {Folder} did not change since last scan, adding entry to skip", directory, seriesModified.LowestFolderPath);
+                            _logger.LogTrace("[ProcessFiles] {Directory} subfolder {Folder} did not change since last scan, adding entry to skip", directory, seriesModified.LowestFolderPath);
                             result.Add(CreateScanResult(seriesModified.LowestFolderPath!, folderPath, false, ArraySegment<string>.Empty));
                         }
                         else
                         {
-                            _logger.LogDebug("[ProcessFiles] {Directory} subfolder {Folder} changed, adding folders", directory, seriesModified.LowestFolderPath);
+                            _logger.LogTrace("[ProcessFiles] {Directory} subfolder {Folder} changed for Series {SeriesName}", directory, seriesModified.LowestFolderPath, seriesModified.SeriesName);
                             result.Add(CreateScanResult(directory, folderPath, true,
                                 _directoryService.ScanFiles(seriesModified.LowestFolderPath!, fileExtensions, matcher)));
                         }
@@ -175,7 +177,6 @@ public class ParseScannedFiles
                 }
                 else
                 {
-                    // For a scan, this is doing everything in the directory loop before the folder Action is called...which leads to no progress indication
                     result.Add(CreateScanResult(directory, folderPath, true,
                         _directoryService.ScanFiles(directory, fileExtensions, matcher)));
                 }
@@ -224,7 +225,7 @@ public class ParseScannedFiles
         return new ScanResult()
         {
             Files = files,
-            Folder = folderPath,
+            Folder = Parser.Parser.NormalizePath(folderPath),
             LibraryRoot = libraryRoot,
             HasChanged = hasChanged
         };

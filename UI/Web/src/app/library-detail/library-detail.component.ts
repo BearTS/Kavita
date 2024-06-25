@@ -211,7 +211,7 @@ export class LibraryDetailComponent implements OnInit {
         const seriesRemoved = event.payload as SeriesRemovedEvent;
         if (seriesRemoved.libraryId !== this.libraryId) return;
         if (!this.utilityService.deepEqual(this.filter, this.filterActiveCheck)) {
-          this.loadPage();
+          this.loadPage(); // TODO: This can be quite expensive when bulk deleting. We can refactor this to an ReplaySubject to debounce
           return;
         }
 
@@ -241,7 +241,6 @@ export class LibraryDetailComponent implements OnInit {
   async handleAction(action: ActionItem<Library>, library: Library) {
     let lib: Partial<Library> = library;
     if (library === undefined) {
-      //lib = {id: this.libraryId, name: this.libraryName}; // BUG: We need the whole library for editLibrary
       this.libraryService.getLibrary(this.libraryId).subscribe(async library => {
         switch (action.action) {
           case(Action.Scan):
